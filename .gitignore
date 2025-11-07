@@ -1,0 +1,62 @@
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnp.*
+/dist
+/build
+/.next
+/.cache
+/.parcel-cache
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+dist/
+build/
+.env
+.venv/
+venv/
+
+# Java
+*.class
+*.jar
+*.war
+*.ear
+target/
+build/
+
+# .NET
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+.vs/
+.vscode/
+
+# IDEs and editors
+.idea/
+*.iml
+*.swp
+*~ 
+
+# Logs, databases, coverage
+*.log
+*.sql
+*.sqlite3
+*.db
+coverage/
+*.coverage
+
+# Packages and archives
+*.tgz
+*.zip

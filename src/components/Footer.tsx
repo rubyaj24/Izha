@@ -1,5 +1,6 @@
 import { Instagram, Facebook, Twitter } from "lucide-react";
 import { Logo } from "./Logo";
+import { Link } from "react-router-dom";
 
 export function Footer() {
   return (
@@ -18,31 +19,70 @@ export function Footer() {
           <div>
             <h4 className="mb-4 text-[16px] uppercase tracking-wider text-white">Shop</h4>
             <ul className="space-y-2 text-[14px] uppercase tracking-wide text-white/60">
-              <li><a href="#" className="hover:text-[#ea2525] transition-colors">New Drops</a></li>
-              <li><a href="#" className="hover:text-[#ea2525] transition-colors">Collections</a></li>
-              <li><a href="#" className="hover:text-[#ea2525] transition-colors">Sale</a></li>
+              <li>
+                <Link to="/#shop" className="hover:text-[#ea2525] transition-colors">
+                  New Drops
+                </Link>
+              </li>
+              <li>
+                <Link to="/#collections" className="hover:text-[#ea2525] transition-colors">
+                  Collections
+                </Link>
+              </li>
+              <li>
+                <Link to="/#shop" className="hover:text-[#ea2525] transition-colors">
+                  Sale
+                </Link>
+              </li>
             </ul>
           </div>
           
           <div>
             <h4 className="mb-4 text-[16px] uppercase tracking-wider text-white">About</h4>
             <ul className="space-y-2 text-[14px] uppercase tracking-wide text-white/60">
-              <li><a href="#" className="hover:text-[#ea2525] transition-colors">Our Story</a></li>
-              <li><a href="#" className="hover:text-[#ea2525] transition-colors">Community</a></li>
-              <li><a href="#" className="hover:text-[#ea2525] transition-colors">Contact</a></li>
+              <li>
+                <Link to="/#about" className="hover:text-[#ea2525] transition-colors">
+                  Our Story
+                </Link>
+              </li>
+              <li>
+                <Link to="/#community" className="hover:text-[#ea2525] transition-colors">
+                  Community
+                </Link>
+              </li>
+              <li>
+                <Link to="/#contact" className="hover:text-[#ea2525] transition-colors">
+                  Contact
+                </Link>
+              </li>
             </ul>
           </div>
           
           <div>
             <h4 className="mb-4 text-[16px] uppercase tracking-wider text-white">Connect</h4>
             <div className="flex gap-4">
-              <a href="#" className="text-white/60 hover:text-[#ea2525] transition-colors">
+              <a
+                href="https://instagram.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-white/60 hover:text-[#ea2525] transition-colors"
+              >
                 <Instagram className="h-6 w-6" />
               </a>
-              <a href="#" className="text-white/60 hover:text-[#ea2525] transition-colors">
+              <a
+                href="https://facebook.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-white/60 hover:text-[#ea2525] transition-colors"
+              >
                 <Facebook className="h-6 w-6" />
               </a>
-              <a href="#" className="text-white/60 hover:text-[#ea2525] transition-colors">
+              <a
+                href="https://twitter.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-white/60 hover:text-[#ea2525] transition-colors"
+              >
                 <Twitter className="h-6 w-6" />
               </a>
             </div>

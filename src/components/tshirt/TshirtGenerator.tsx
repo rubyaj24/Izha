@@ -23,15 +23,20 @@ export function TshirtGenerator() {
     const context = canvas.getContext("2d");
     if (!context) return;
 
+    // Rotate the uploaded image 180deg so it aligns with the model UVs
     context.clearRect(0, 0, canvas.width, canvas.height);
+    context.save();
+    context.translate(canvas.width, canvas.height);
+    context.rotate(Math.PI);
     context.drawImage(image, 0, 0, canvas.width, canvas.height);
+    context.restore();
     setTextureCanvas(canvas);
   };
 
   return (
     <div className="relative z-10 min-h-screen bg-black pt-0">
-      <div className="mx-auto max-w-7xl px-4 pb-8 pt-24 sm:pb-12 sm:pt-32 md:pt-40">
-        <div className="mb-6 text-center md:mb-8 md:text-left">
+      <div className="mx-auto max-w-7xl px-4 py-8 pt-24 sm:pb-12 sm:pt-32 md:pt-40">
+        <div className="my-6 text-center md:my-8 md:text-left">
           <h1 className="text-[26px] uppercase tracking-[0.15em] text-white sm:text-[32px] md:text-[40px]">
             T-SHIRT GENERATOR
           </h1>

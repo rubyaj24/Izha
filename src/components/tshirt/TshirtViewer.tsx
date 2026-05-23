@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
 export function TshirtViewer({
   textureCanvas,
@@ -15,9 +16,9 @@ export function TshirtViewer({
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
   const controlsRef = useRef<OrbitControls | null>(null);
   const modelRef = useRef<THREE.Group | null>(null);
+  const defaultTextureRef = useRef<THREE.Texture | null>(null);
   const [loading, setLoading] = useState(true);
   const [progress] = useState(100);
-
   const applyMaterial = (model: THREE.Group) => {
     model.traverse((child) => {
       if ((child as THREE.Mesh).isMesh) {
@@ -27,9 +28,24 @@ export function TshirtViewer({
         }
         if (textureCanvas) {
           const texture = new THREE.CanvasTexture(textureCanvas);
+          texture.wrapS = THREE.RepeatWrapping;
+          texture.repeat.x = -1;
+          texture.offset.x = 1;
           texture.needsUpdate = true;
           mesh.material = new THREE.MeshStandardMaterial({
             map: texture,
+            roughness: 0.5,
+            metalness: 0.05,
+            side: THREE.DoubleSide,
+          });
+        } else if (defaultTextureRef.current) {
+          const tex = defaultTextureRef.current;
+          tex.wrapS = THREE.RepeatWrapping;
+          tex.repeat.x = -1;
+          tex.offset.x = 1;
+          tex.needsUpdate = true;
+          mesh.material = new THREE.MeshStandardMaterial({
+            map: tex,
             roughness: 0.5,
             metalness: 0.05,
             side: THREE.DoubleSide,
@@ -46,7 +62,7 @@ export function TshirtViewer({
     });
   };
 
-  // One-time setup: create scene, camera, renderer, and a default cube.
+  // One-time setup: create scene, camera, renderer, and load the shirt model.
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
@@ -65,7 +81,7 @@ export function TshirtViewer({
       }
 
       const scene = new THREE.Scene();
-      scene.background = new THREE.Color("#ffffff");
+      scene.background = new THREE.Color("#161515");
       sceneRef.current = scene;
 
       const camera = new THREE.PerspectiveCamera(30, width / height, 0.1, 100);
@@ -114,22 +130,62 @@ export function TshirtViewer({
       rimLight.position.set(0, -3, 2);
       scene.add(rimLight);
 
-      const cube = new THREE.Mesh(
-        new THREE.BoxGeometry(1.5, 1.5, 1.5),
-        new THREE.MeshStandardMaterial({
-          color: shirtColor,
-          roughness: 0.45,
-          metalness: 0.08,
-        }),
-      );
-      cube.castShadow = true;
-      cube.receiveShadow = true;
+      const loader = new GLTFLoader();
+      loader.load(
+        new URL("../../assets/tshirtflying.glb", import.meta.url).href,
+        (gltf) => {
+          if (disposed) return;
 
-      const cubeGroup = new THREE.Group();
-      cubeGroup.add(cube);
-      modelRef.current = cubeGroup;
-      scene.add(cubeGroup);
-      setLoading(false);
+          const model = gltf.scene;
+          model.traverse((child) => {
+            if ((child as THREE.Mesh).isMesh) {
+              const mesh = child as THREE.Mesh;
+              mesh.castShadow = true;
+              mesh.receiveShadow = true;
+            }
+          });
+
+          const box = new THREE.Box3().setFromObject(model);
+          const size = new THREE.Vector3();
+          const center = new THREE.Vector3();
+          box.getSize(size);
+          box.getCenter(center);
+
+          model.position.sub(center);
+
+          const maxDimension = Math.max(size.x, size.y, size.z);
+          const scale = maxDimension > 0 ? 2.4 / maxDimension : 1;
+          model.scale.setScalar(scale);
+
+          const modelGroup = new THREE.Group();
+          modelGroup.add(model);
+          modelRef.current = modelGroup;
+          scene.add(modelGroup);
+          applyMaterial(modelGroup);
+          setLoading(false);
+        },
+        undefined,
+        () => {
+          if (disposed) return;
+
+          const fallbackCube = new THREE.Mesh(
+            new THREE.BoxGeometry(1.5, 1.5, 1.5),
+            new THREE.MeshStandardMaterial({
+              color: shirtColor,
+              roughness: 0.45,
+              metalness: 0.08,
+            }),
+          );
+          fallbackCube.castShadow = true;
+          fallbackCube.receiveShadow = true;
+
+          const fallbackGroup = new THREE.Group();
+          fallbackGroup.add(fallbackCube);
+          modelRef.current = fallbackGroup;
+          scene.add(fallbackGroup);
+          setLoading(false);
+        },
+      );
 
       const animate = () => {
         if (disposed) return;
@@ -175,9 +231,31 @@ export function TshirtViewer({
         cleanup();
       }
     };
-  }, []);
+    }, []);
 
-  // Texture/material update: apply to the default cube.
+  // preload default texture if present
+  try {
+    const texUrl = new URL("../../assets/yourdesignhere.png", import.meta.url).href;
+    const texLoader = new THREE.TextureLoader();
+    texLoader.load(
+      texUrl,
+      (t) => {
+        defaultTextureRef.current = t;
+        t.needsUpdate = true;
+        t.wrapS = THREE.RepeatWrapping;
+        t.repeat.x = -1;
+        t.offset.x = 1;
+      },
+      undefined,
+      () => {
+        // ignore load error
+      },
+    );
+  } catch (e) {
+    // asset may not exist; ignore
+  }
+
+  // Texture/material update: apply to the loaded shirt model.
   useEffect(() => {
     const model = modelRef.current;
     if (!model) return;
